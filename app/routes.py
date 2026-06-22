@@ -37,7 +37,7 @@ def game():
         num2=example["num2"],
         operation=example["operation"],
         correct=session["correct"],
-        wrong=session["wrong"]
+        wrong=session["wrong"],
         stars=session["stars"]
     )
 
