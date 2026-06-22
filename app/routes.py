@@ -1,79 +1,156 @@
-import random
-from flask import render_template, request, session, redirect, url_for
 from app import app
+from flask import render_template, session, redirect, request, url_for
+import os
 
-@app.route('/')
+from app.settings_manager import load_settings, save_settings
+from app.statistics_manager import load_statistics
+from app.profiles_manager import load_profiles, save_profiles
+from app.math_generator import generate_example
+
+
+@app.route("/")
 def index():
-    return redirect(url_for('math'))
-    
+    session["correct"] = 0
+    session["wrong"] = 0
+    return render_template("index.html")
 
-@app.route('/math', methods=['GET', 'POST'])
-def math():
-    action_sym = ['+', '-']
-    if 'correct' not in session:
-        session['correct'] = 0
-        session['wrong'] = 0
 
-    if request.method == 'POST':
-        action = request.form.get('action')
-        if action == 'stop':
-            result_data = {
-                'correct': session['correct'],
-                'wrong': session['wrong']
-            }
-            session.clear()
-            return render_template('math_results.html', **result_data)
+@app.route("/select/<mode>")
+def select(mode):
+    session["mode"] = mode
+    return redirect(url_for("game"))
 
-        num1 = int(request.form.get('num1'))
-        num2 = int(request.form.get('num2'))
-        action_math = request.form.get('action_math')
-        user_answer = int(request.form.get('answer'))
-        if action_math == '+':
-            correct_answer = num1 + num2
-        elif action_math == '-':
-            correct_answer = num1 - num2
 
-        if user_answer == correct_answer:
-            session['correct'] += 1
-            feedback = 'Правильно! 🎉'
-            feedback_class = 'feedback correct'
-        else:
-            session['wrong'] += 1
-            feedback = f'Неправильно. Правильный ответ: {correct_answer}'
-            feedback_class = 'feedback incorrect'
+@app.route("/game")
+def game():
 
-            # Новый пример
-        new_num1 = random.randint(1, 10)
-        new_num2 = random.randint(1, 10)
-        new_action_math = random.choice(action_sym)
-        while True:
-            if new_action_math == '-' and new_num1 < new_num2:
-                new_num1 = random.randint(1, 10)
-                new_num2 = random.randint(1, 10)
-                new_action_math = random.choice(action_sym)
-            else:
-                break
+    example = generate_example(session["mode"])
 
-        return render_template('math.html',
-                            num1=new_num1,
-                            num2=new_num2,
-                            action_math=new_action_math,
-                            feedback=feedback,
-                            feedback_class=feedback_class,
-                            correct=session['correct'],
-                            wrong=session['wrong']
-                            )
-    # Первый заход
-    num1 = random.randint(1, 10)
-    num2 = random.randint(1, 10)
-    action_math = random.choice(action_sym)
-    while True:
-        if action_math == '-' and num1 < num2:
-            num1 = random.randint(1, 10)
-            num2 = random.randint(1, 10)
-            action_math = random.choice(action_sym)
-        else:
-            break
+    session["answer"] = example["answer"]
 
-    return render_template('math.html', num1=num1, num2=num2, 
-                           action_math=action_math)
+    message=message,
+    success=success
+
+    return render_template(
+        "game.html",
+        num1=example["num1"],
+        num2=example["num2"],
+        operation=example["operation"],
+        correct=session["correct"],
+        wrong=session["wrong"]
+        stars=session["stars"]
+    )
+
+
+@app.route("/check", methods=["POST"])
+def check():
+
+    user_answer = int(request.form["answer"])
+
+    if user_answer == session["answer"]:
+        session["correct"] += 1
+        session["stars"] += 1
+
+        session["message"] = "🎉 Молодец!"
+        session["success"] = True
+
+    else:
+        session["wrong"] += 1
+
+        session["message"] = "🙂 Попробуй ещё"
+        session["success"] = False
+
+    return redirect(url_for("game"))
+
+
+@app.route("/settings")
+def settings():
+
+    settings = load_settings()
+
+    images = os.listdir("app/static/backgrounds")
+
+    return render_template(
+        "settings.html",
+        settings=settings,
+        images=images
+    )
+
+
+@app.route("/save_settings", methods=["POST"])
+def save_settings_route():
+
+    settings = load_settings()
+
+    settings["background_color"] = request.form["background_color"]
+
+    settings["background_image"] = request.form["background_image"]
+
+    settings["theme"] = request.form["theme"]
+
+    save_settings(settings)
+
+    return redirect(url_for("settings"))
+
+
+@app.route("/profiles")
+def profiles():
+
+    profiles = load_profiles()
+
+    return render_template(
+        "profiles.html",
+        profiles=profiles
+    )
+
+
+@app.route("/add_profile", methods=["POST"])
+def add_profile():
+
+    profiles = load_profiles()
+
+    profiles.append(
+        {
+            "name": request.form["name"],
+            "stars": 0,
+            "correct": 0,
+            "wrong": 0,
+            "record": 0
+        }
+    )
+
+    save_profiles(profiles)
+
+    return redirect(url_for("profiles"))
+
+
+@app.route("/select_profile/<int:index>")
+def select_profile(index):
+
+    session["profile_index"] = index
+
+    return redirect(url_for("index"))
+
+
+@app.context_processor
+def inject_profile():
+
+    profiles = load_profiles()
+
+    current = None
+
+    if "profile_index" in session:
+        current = profiles[session["profile_index"]]
+
+    return dict(current_profile=current)
+
+
+@app.route("/statistics")
+def statistics():
+
+    stat = load_statistics()
+
+    return render_template(
+        "statistics.html",
+        stat=stat
+    )

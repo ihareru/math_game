@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block content %}
+    <h1>
+    📊 Статистика
+    </h1>
+
+    <h2>
+        ✅ Правильных: {{ stat.correct }}
+    </h2>
+    <h2>
+        ❌ Неправильных: {{ stat.wrong }}
+    </h2>
+    <h2>
+        🏆 Рекорд: {{ stat.record }}
+    </h2>
+{% endblock %}

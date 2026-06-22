@@ -1,10 +1,29 @@
-<!doctype html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Тренировка по математике</title>
-</head>
-<body>
-    <p>Привет мир!</p>
-</body>
-</html>
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1>Математическая игра</h1>
+
+<p>Выберите режим:</p>
+
+<a href="/select/add"><button>➕ Сложение</button></a>
+<br>
+
+<a href="/select/sub"><button>➖ Вычитание</button></a>
+<br>
+
+<a href="/select/mul"><button>✖ Умножение</button></a>
+<br>
+
+<a href="/select/div"><button>➗ Деление</button></a>
+<br>
+
+<a href="/select/all"><button>🔀 Все действия</button></a>
+
+<hr>
+
+<button>⚙ Настройки</button>
+<button>🏆 Статистика</button>
+<button>👦 Профили</button>
+
+{% endblock %}

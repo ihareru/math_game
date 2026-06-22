@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1>👦 Профили</h1>
+
+<form action="/add_profile" method="post">
+
+<input
+type="text"
+name="name"
+placeholder="Имя ребенка"
+required>
+
+<button>
+
+Добавить
+
+</button>
+
+</form>
+
+<hr>
+
+{% for profile in profiles %}
+
+<h2>
+
+{{ profile.name }}
+
+⭐ {{ profile.stars }}
+
+🏆 {{ profile.record }}
+
+</h2>
+
+<a href="/select_profile/{{ loop.index0 }}">
+
+<button>
+
+Выбрать
+
+</button>
+
+</a>
+
+<hr>
+
+{% endfor %}
+
+{% endblock %}

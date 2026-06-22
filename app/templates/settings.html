@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1>⚙ Настройки</h1>
+
+<form action="/save_settings" method="post">
+
+<h3>Цвет фона</h3>
+
+<input
+type="color"
+name="background_color"
+value="{{ settings.background_color }}">
+
+<hr>
+
+<h3>Фоновая картинка</h3>
+
+<select name="background_image">
+
+<option value="">Нет</option>
+
+{% for image in images %}
+
+<option value="{{ image }}">
+
+{{ image }}
+
+</option>
+
+{% endfor %}
+
+</select>
+
+<hr>
+
+<h3>Тема</h3>
+
+<select name="theme">
+
+<option value="light">Светлая</option>
+
+<option value="dark">Темная</option>
+
+</select>
+
+<br><br>
+
+<button type="submit">
+
+Сохранить
+
+</button>
+
+</form>
+
+{% endblock %}
