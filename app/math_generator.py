@@ -16,9 +16,12 @@ def generate_example(mode):
         operation = random.choice(["+", "-", "*", "/"])
 
     if operation == "+":
-        num1 = random.randint(1, 20)
-        num2 = random.randint(1, 20)
-        answer = num1 + num2
+        while True:
+            num1 = random.randint(1, 100)
+            num2 = random.randint(1, 100)
+            answer = num1 + num2
+            if answer <= 100:
+                break
 
     elif operation == "-":
         num1 = random.randint(1, 20)
@@ -38,6 +41,6 @@ def generate_example(mode):
     return {
         "num1": num1,
         "num2": num2,
-        "operation": operation,
+        "operation": ":" if operation == "/" else operation,
         "answer": answer
     }

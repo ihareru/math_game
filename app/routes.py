@@ -3,7 +3,7 @@ from flask import render_template, session, redirect, request, url_for
 import os
 
 from app.settings_manager import load_settings, save_settings
-from app.statistics_manager import load_statistics
+from app.statistics_manager import load_statistics, save_statistics
 from app.profiles_manager import load_profiles, save_profiles
 from app.math_generator import generate_example
 
@@ -12,6 +12,7 @@ from app.math_generator import generate_example
 def index():
     session["correct"] = 0
     session["wrong"] = 0
+    session["stars"] = 0
     return render_template("index.html")
 
 
@@ -25,11 +26,14 @@ def select(mode):
 def game():
 
     example = generate_example(session["mode"])
+    
+    print("GAME:")
+    print(example)
 
     session["answer"] = example["answer"]
 
-    message=message,
-    success=success
+    message = session.pop("message", "")
+    success = session.pop("success", None)
 
     return render_template(
         "game.html",
@@ -38,7 +42,9 @@ def game():
         operation=example["operation"],
         correct=session["correct"],
         wrong=session["wrong"],
-        stars=session["stars"]
+        stars=session["stars"],
+        message=message,
+        success=success
     )
 
 
@@ -47,6 +53,8 @@ def check():
 
     user_answer = int(request.form["answer"])
 
+    stats = load_statistics()
+
     if user_answer == session["answer"]:
         session["correct"] += 1
         session["stars"] += 1
@@ -54,11 +62,20 @@ def check():
         session["message"] = "🎉 Молодец!"
         session["success"] = True
 
+        stats["correct"] += 1
+
+        if session["correct"] > stats["record"]:
+            stats["record"] = session["correct"]
+
     else:
         session["wrong"] += 1
 
         session["message"] = "🙂 Попробуй ещё"
         session["success"] = False
+
+        stats["wrong"] += 1
+
+    save_statistics(stats)
 
     return redirect(url_for("game"))
 
