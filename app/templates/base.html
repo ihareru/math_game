@@ -18,21 +18,39 @@ background-size:cover;
 
 
 {% if current_profile %}
-    <h3>👦 Игрок:
-        {{ current_profile.name }} ⭐ {{ current_profile.stars }}
+    <h3>
+        👦 Игрок: {{ current_profile.name }} ⭐ {{ current_profile.stars }}
     </h3>
 {% endif %}
 
 {% block content %}
 {% endblock %}
 
-<audio autoplay loop>
-    <source src="{{ url_for('static',
-    filename='music/background.mp3') }}">
-</audio>
+{% if settings.background_music %}
+    <audio
+    autoplay
+    loop
+    volume="{{ settings.background_volume / 100 }}"
+    id="background-music">
+
+    <source
+    src="{{ url_for('static', filename='music/background.mp3') }}">
+
+    </audio>
+{% endif %}
 
 <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
 <script src="{{ url_for('static', filename='js/effects.js') }}"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function() {
 
+    let music = document.getElementById("background-music");
+
+    if (music) {
+        music.volume = {{ settings.background_volume / 100 }};
+    }
+
+});
+</script>
 </body>
 </html>

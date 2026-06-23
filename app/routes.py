@@ -101,10 +101,31 @@ def save_settings_route():
     settings = load_settings()
 
     settings["background_color"] = request.form["background_color"]
-
     settings["background_image"] = request.form["background_image"]
 
-    settings["theme"] = request.form["theme"]
+    settings["background_music"] = (
+        "background_music" in request.form
+    )
+
+    settings["success_sound"] = (
+        "success_sound" in request.form
+    )
+
+    settings["fail_sound"] = (
+        "fail_sound" in request.form
+    )
+
+    settings["background_volume"] = int(
+    request.form.get("background_volume", 50)
+    )
+
+    settings["success_volume"] = int(
+        request.form.get("success_volume", 100)
+    )
+
+    settings["fail_volume"] = int(
+        request.form.get("fail_volume", 100)
+    )
 
     save_settings(settings)
 

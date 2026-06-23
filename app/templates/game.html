@@ -45,20 +45,32 @@
     <button>Главное меню</button>
 </a>
 
-{% if success == True %}
+{% if success == True and settings.success_sound %}
+
+<audio autoplay id="success-sound">
+    <source src="{{ url_for('static',
+    filename='music/success.mp3') }}">
+</audio>
+
 <script>
-    startConfetti();
+document.getElementById("success-sound").volume =
+{{ settings.success_volume / 100 }};
 </script>
 
-<audio autoplay>
-    <source src="{{ url_for('static',filename='music/success.mp3') }}">
-</audio>
 {% endif %}
 
-{% if success == False %}
-<audio autoplay>
-    <source src="{{ url_for('static',filename='music/fail.mp3') }}">
+{% if success == False and settings.fail_sound %}
+
+<audio autoplay id="fail-sound">
+    <source src="{{ url_for('static',
+    filename='music/fail.mp3') }}">
 </audio>
+
+<script>
+document.getElementById("fail-sound").volume =
+{{ settings.fail_volume / 100 }};
+</script>
+
 {% endif %}
 
 {% endblock %}

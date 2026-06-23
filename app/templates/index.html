@@ -22,8 +22,20 @@
 
 <hr>
 
-<button>⚙ Настройки</button>
-<button>🏆 Статистика</button>
-<button>👦 Профили</button>
+<a href="{{ url_for('settings') }}">
+    <button>⚙ Настройки</button>
+</a>
+
+<br>
+
+<a href="{{ url_for('statistics') }}">
+    <button>🏆 Статистика</button>
+</a>
+
+<br>
+
+<a href="{{ url_for('profiles') }}">
+    <button>👦 Профили</button>
+</a>
 
 {% endblock %}

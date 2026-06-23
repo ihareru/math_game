@@ -1,7 +1,11 @@
 {
-    "background_type": "color",
-    "background_color": "#87CEEB",
-    "background_image": "",
+    "background_color": "#68adcf",
+    "background_image": "sea.jpg",
     "theme": "light",
-    "sound": true
+    "background_music": true,
+    "success_sound": true,
+    "fail_sound": true,
+    "background_volume": 52,
+    "success_volume": 100,
+    "fail_volume": 100
 }
