@@ -1,18 +1,21 @@
-# app/math_generator.py
-
 import random
 
 
 def generate_example(mode):
     if mode == "add":
+        title = "на сложение"
         operation = "+"
     elif mode == "sub":
+        title = "на вычетание"
         operation = "-"
     elif mode == "mul":
+        title = "на умножение"
         operation = "*"
     elif mode == "div":
+        title = "на деление"
         operation = "/"
     else:
+        title = "в случайном порядке"
         operation = random.choice(["+", "-", "*", "/"])
 
     if operation == "+":
@@ -24,7 +27,7 @@ def generate_example(mode):
                 break
 
     elif operation == "-":
-        num1 = random.randint(1, 20)
+        num1 = random.randint(1, 100)
         num2 = random.randint(1, num1)
         answer = num1 - num2
 
@@ -39,6 +42,7 @@ def generate_example(mode):
         num1 = num2 * answer
 
     return {
+        "title": title,
         "num1": num1,
         "num2": num2,
         "operation": ":" if operation == "/" else operation,

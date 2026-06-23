@@ -37,6 +37,7 @@ def game():
 
     return render_template(
         "game.html",
+        title=example["title"],
         num1=example["num1"],
         num2=example["num2"],
         operation=example["operation"],
