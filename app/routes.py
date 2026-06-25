@@ -1,17 +1,16 @@
 from app import app
 from flask import render_template, session, redirect, request, url_for
 import os
-
+from flask import send_from_directory
 from app.settings_manager import load_settings, save_settings
 from app.profiles_manager import load_profiles, save_profiles
 from app.math_generator import generate_example
+from app.paths import BACKGROUNDS_DIR
 
 
 @app.route("/")
 def index():
-    session.setdefault("correct", 0)
-    session.setdefault("wrong", 0)
-    session.setdefault("stars", 0)
+    
     session.setdefault("streak", 0)
 
     return render_template("index.html")
@@ -26,10 +25,6 @@ def select(mode):
 @app.route("/game")
 def game():
 
-    session.setdefault("correct", 0)
-    session.setdefault("wrong", 0)
-    session.setdefault("stars", 0)
-
     example = generate_example(session["mode"])
 
     session["answer"] = example["answer"]
@@ -37,6 +32,8 @@ def game():
     message = session.pop("message", "")
     success = session.pop("success", None)
     profile_stars = 0
+    profile_correct = 0
+    profile_wrong = 0
 
     if "profile_index" in session:
 
@@ -44,7 +41,12 @@ def game():
         index = session["profile_index"]
 
         if 0 <= index < len(profiles):
-            profile_stars = profiles[index]["stars"]
+
+            profile = profiles[index]
+
+            profile_stars = profile["stars"]
+            profile_correct = profile["correct"]
+            profile_wrong = profile["wrong"]
 
     return render_template(
         "game.html",
@@ -52,8 +54,8 @@ def game():
         num1=example["num1"],
         num2=example["num2"],
         operation=example["operation"],
-        correct=session["correct"],
-        wrong=session["wrong"],
+        correct=profile_correct,
+        wrong=profile_wrong,
         stars=profile_stars,
         streak=session["streak"],
         message=message,
@@ -71,11 +73,14 @@ def check():
     current_profile = None
 
     if "profile_index" in session:
-        current_profile = profiles[session["profile_index"]]
+
+        index = session["profile_index"]
+
+        if 0 <= index < len(profiles):
+            current_profile = profiles[index]
 
     if user_answer == session["answer"]:
 
-        session["correct"] += 1
         session["streak"] += 1
         session["message"] = "🎉 Молодец!"
         session["success"] = True
@@ -93,7 +98,6 @@ def check():
 
     else:
 
-        session["wrong"] += 1
         session["streak"] = 0
 
         session["message"] = "🙂 Попробуй ещё"
@@ -112,7 +116,9 @@ def settings():
 
     settings = load_settings()
 
-    images = os.listdir("app/static/backgrounds")
+    os.makedirs("backgrounds", exist_ok=True)
+
+    images = os.listdir(BACKGROUNDS_DIR)
 
     return render_template(
         "settings.html",
@@ -192,7 +198,20 @@ def add_profile():
 @app.route("/select_profile/<int:index>")
 def select_profile(index):
 
-    session["profile_index"] = index
+    profiles = load_profiles()
+
+    if 0 <= index < len(profiles):
+
+        profile = profiles[index]
+
+        session["profile_index"] = index
+
+        # статистика профиля
+        session["correct"] = profile["correct"]
+        session["wrong"] = profile["wrong"]
+
+        # серия всегда начинается заново
+        session["streak"] = 0
 
     return redirect(url_for("index"))
 
@@ -256,8 +275,6 @@ def statistics():
 @app.route("/reset_statistics")
 def reset_statistics():
 
-    session["correct"] = 0
-    session["wrong"] = 0
     session["streak"] = 0
 
     if "profile_index" in session:
@@ -275,3 +292,11 @@ def reset_statistics():
             save_profiles(profiles)
 
     return redirect(url_for("statistics"))
+
+
+@app.route("/backgrounds/<filename>")
+def backgrounds(filename):
+    return send_from_directory(
+        BACKGROUNDS_DIR,
+        filename
+    )

@@ -1,0 +1,11 @@
+{
+    "background_color": "#68adcf",
+    "background_image": "lake.jpg",
+    "theme": "light",
+    "background_music": true,
+    "success_sound": true,
+    "fail_sound": true,
+    "background_volume": 50,
+    "success_volume": 100,
+    "fail_volume": 100
+}
