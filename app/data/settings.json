@@ -1,11 +1,11 @@
 {
     "background_color": "#68adcf",
-    "background_image": "sea.jpg",
+    "background_image": "Space.png",
     "theme": "light",
     "background_music": false,
     "success_sound": true,
     "fail_sound": true,
     "background_volume": 16,
-    "success_volume": 100,
-    "fail_volume": 100
+    "success_volume": 17,
+    "fail_volume": 21
 }

@@ -7,14 +7,14 @@
     <link rel="stylesheet"
           href="{{ url_for('static', filename='css/styles.css') }}">
 </head>
-<body
-style="
-background-color: {{ settings.background_color }};
-{% if settings.background_image %}
-background-image:url('/static/backgrounds/{{ settings.background_image }}');
-background-size:cover;
-{% endif %}
-">
+<body class="{% if settings.background_image == 'Space.png' %}space-theme{% endif %}"
+    style="background-color: {{ settings.background_color }};
+    {% if settings.background_image %}
+        background-image:url('/static/backgrounds/{{ settings.background_image }}');
+        background-size:cover;
+    {% endif %}
+    ">
+
 <script>
     document.addEventListener("DOMContentLoaded", function() {
 

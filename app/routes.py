@@ -12,6 +12,8 @@ def index():
     session.setdefault("correct", 0)
     session.setdefault("wrong", 0)
     session.setdefault("stars", 0)
+    session.setdefault("streak", 0)
+
     return render_template("index.html")
 
 
@@ -34,6 +36,15 @@ def game():
 
     message = session.pop("message", "")
     success = session.pop("success", None)
+    profile_stars = 0
+
+    if "profile_index" in session:
+
+        profiles = load_profiles()
+        index = session["profile_index"]
+
+        if 0 <= index < len(profiles):
+            profile_stars = profiles[index]["stars"]
 
     return render_template(
         "game.html",
@@ -43,7 +54,8 @@ def game():
         operation=example["operation"],
         correct=session["correct"],
         wrong=session["wrong"],
-        stars=session["stars"],
+        stars=profile_stars,
+        streak=session["streak"],
         message=message,
         success=success
     )
@@ -64,25 +76,25 @@ def check():
     if user_answer == session["answer"]:
 
         session["correct"] += 1
-        session["stars"] += 1
-
+        session["streak"] += 1
         session["message"] = "🎉 Молодец!"
         session["success"] = True
 
         if current_profile:
             current_profile["correct"] += 1
-            current_profile["stars"] += 1
+        
+            # каждые 10 подряд = звезда
+            if session["streak"] % 10 == 0:
+                current_profile["stars"] += 1
 
-            # обновляем рекорд серии
-            if session["correct"] > current_profile["record"]:
-                current_profile["record"] = session["correct"]
+            # рекорд серии
+            if session["streak"] > current_profile["record"]:
+                current_profile["record"] = session["streak"]
 
     else:
 
         session["wrong"] += 1
-
-        # серия прерывается
-        session["correct"] = 0
+        session["streak"] = 0
 
         session["message"] = "🙂 Попробуй ещё"
         session["success"] = False
@@ -193,7 +205,11 @@ def inject_profile():
     current = None
 
     if "profile_index" in session:
-        current = profiles[session["profile_index"]]
+
+        index = session["profile_index"]
+
+        if 0 <= index < len(profiles):
+            current = profiles[index]
 
     return dict(current_profile=current)
 
@@ -217,10 +233,19 @@ def statistics():
 
     profiles = load_profiles()
 
-    stat = None
+    stat = {
+        "correct": 0,
+        "wrong": 0,
+        "record": 0,
+        "stars": 0
+    }
 
     if "profile_index" in session:
-        stat = profiles[session["profile_index"]]
+
+        index = session["profile_index"]
+
+        if 0 <= index < len(profiles):
+            stat = profiles[index]
 
     return render_template(
         "statistics.html",
@@ -231,17 +256,22 @@ def statistics():
 @app.route("/reset_statistics")
 def reset_statistics():
 
-    profiles = load_profiles()
+    session["correct"] = 0
+    session["wrong"] = 0
+    session["streak"] = 0
 
     if "profile_index" in session:
 
-        profile = profiles[session["profile_index"]]
+        profiles = load_profiles()
+        index = session["profile_index"]
 
-        profile["correct"] = 0
-        profile["wrong"] = 0
-        profile["stars"] = 0
-        profile["record"] = 0
+        if 0 <= index < len(profiles):
 
-        save_profiles(profiles)
+            profiles[index]["correct"] = 0
+            profiles[index]["wrong"] = 0
+            profiles[index]["stars"] = 0
+            profiles[index]["record"] = 0
+
+            save_profiles(profiles)
 
     return redirect(url_for("statistics"))

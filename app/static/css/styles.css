@@ -74,5 +74,25 @@ h2{
     font-size:70px;
 }
 
+.space-theme button{
+    color:white;
+    background-color:rgba(0,0,0,0.5);
+    border:1px solid white;
+}
 
+.space-theme input,
+.space-theme select{
+    background-color:rgba(0,0,0,0.5);
+    color:white;
+    border:1px solid white;
+}
 
+.space-theme,
+.space-theme h1,
+.space-theme h2,
+.space-theme h3,
+.space-theme p,
+.space-theme a,
+.space-theme label{
+    color:white;
+}
