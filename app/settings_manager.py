@@ -1,18 +1,8 @@
 import json
 import os
 
+
 SETTINGS_FILE = "app/data/settings.json"
-
-# DEFAULT_SETTINGS = {
-#     "background_color": "#87CEEB",
-#     "background_image": "",
-#     "theme": "light",
-
-#     "background_music": True,
-#     "success_sound": True,
-#     "fail_sound": True
-# }
-
 
 def load_settings():
     try:

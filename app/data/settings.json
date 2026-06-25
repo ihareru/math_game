@@ -2,10 +2,10 @@
     "background_color": "#68adcf",
     "background_image": "sea.jpg",
     "theme": "light",
-    "background_music": true,
+    "background_music": false,
     "success_sound": true,
     "fail_sound": true,
-    "background_volume": 52,
+    "background_volume": 16,
     "success_volume": 100,
     "fail_volume": 100
 }

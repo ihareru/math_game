@@ -3,16 +3,15 @@ from flask import render_template, session, redirect, request, url_for
 import os
 
 from app.settings_manager import load_settings, save_settings
-from app.statistics_manager import load_statistics, save_statistics
 from app.profiles_manager import load_profiles, save_profiles
 from app.math_generator import generate_example
 
 
 @app.route("/")
 def index():
-    session["correct"] = 0
-    session["wrong"] = 0
-    session["stars"] = 0
+    session.setdefault("correct", 0)
+    session.setdefault("wrong", 0)
+    session.setdefault("stars", 0)
     return render_template("index.html")
 
 
@@ -25,10 +24,11 @@ def select(mode):
 @app.route("/game")
 def game():
 
+    session.setdefault("correct", 0)
+    session.setdefault("wrong", 0)
+    session.setdefault("stars", 0)
+
     example = generate_example(session["mode"])
-    
-    print("GAME:")
-    print(example)
 
     session["answer"] = example["answer"]
 
@@ -54,29 +54,43 @@ def check():
 
     user_answer = int(request.form["answer"])
 
-    stats = load_statistics()
+    profiles = load_profiles()
+
+    current_profile = None
+
+    if "profile_index" in session:
+        current_profile = profiles[session["profile_index"]]
 
     if user_answer == session["answer"]:
+
         session["correct"] += 1
         session["stars"] += 1
 
         session["message"] = "🎉 Молодец!"
         session["success"] = True
 
-        stats["correct"] += 1
+        if current_profile:
+            current_profile["correct"] += 1
+            current_profile["stars"] += 1
 
-        if session["correct"] > stats["record"]:
-            stats["record"] = session["correct"]
+            # обновляем рекорд серии
+            if session["correct"] > current_profile["record"]:
+                current_profile["record"] = session["correct"]
 
     else:
+
         session["wrong"] += 1
+
+        # серия прерывается
+        session["correct"] = 0
 
         session["message"] = "🙂 Попробуй ещё"
         session["success"] = False
 
-        stats["wrong"] += 1
+        if current_profile:
+            current_profile["wrong"] += 1
 
-    save_statistics(stats)
+    save_profiles(profiles)
 
     return redirect(url_for("game"))
 
@@ -184,12 +198,50 @@ def inject_profile():
     return dict(current_profile=current)
 
 
+@app.route("/delete_profile/<int:index>")
+def delete_profile(index):
+
+    profiles = load_profiles()
+
+    if 0 <= index < len(profiles):
+        profiles.pop(index)
+        save_profiles(profiles)
+
+    session.pop("profile_index", None)
+
+    return redirect(url_for("profiles"))
+
+
 @app.route("/statistics")
 def statistics():
 
-    stat = load_statistics()
+    profiles = load_profiles()
+
+    stat = None
+
+    if "profile_index" in session:
+        stat = profiles[session["profile_index"]]
 
     return render_template(
         "statistics.html",
         stat=stat
     )
+
+
+@app.route("/reset_statistics")
+def reset_statistics():
+
+    profiles = load_profiles()
+
+    if "profile_index" in session:
+
+        profile = profiles[session["profile_index"]]
+
+        profile["correct"] = 0
+        profile["wrong"] = 0
+        profile["stars"] = 0
+        profile["record"] = 0
+
+        save_profiles(profiles)
+
+    return redirect(url_for("statistics"))
