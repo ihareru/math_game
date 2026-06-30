@@ -1,8 +1,8 @@
 {
     "background_color": "#68adcf",
-    "background_image": "lake.jpg",
+    "background_image": "Minecraft.png",
     "theme": "light",
-    "background_music": true,
+    "background_music": false,
     "success_sound": true,
     "fail_sound": true,
     "background_volume": 50,
