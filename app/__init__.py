@@ -1,12 +1,12 @@
 from flask import Flask
+from config import Config
 from app.settings_manager import load_settings
 from app.utils import resource_path
-from app.paths import copy_default_backgrounds
+
 
 app = Flask(__name__, template_folder=resource_path("app/templates"),
             static_folder=resource_path("app/static"))
-copy_default_backgrounds()
-app.secret_key = 'your-super-secret-key'
+app.config.from_object(Config)
 
 
 @app.context_processor

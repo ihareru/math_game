@@ -10,7 +10,7 @@
 <body class="{% if settings.background_image == 'Space.png' %}space-theme{% endif %}"
     style="background-color: {{ settings.background_color }};
     {% if settings.background_image %}
-        background-image:url('/backgrounds/{{ settings.background_image }}');
+        background-image:url('{{ url_for("static", filename="backgrounds/" + settings.background_image) }}');
         background-size:cover;
     {% endif %}
     ">

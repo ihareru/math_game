@@ -1,19 +1,25 @@
 from app import app
 from flask import render_template, session, redirect, request, url_for
 import os
-from flask import send_from_directory
 from app.settings_manager import load_settings, save_settings
 from app.profiles_manager import load_profiles, save_profiles
 from app.math_generator import generate_example
-from app.paths import BACKGROUNDS_DIR
+import smtplib
+from email.mime.text import MIMEText
+from flask import current_app
 
 
 @app.route("/")
 def index():
-    
+
     session.setdefault("streak", 0)
 
-    return render_template("index.html")
+    message = session.pop("message", "")
+
+    return render_template(
+        "index.html",
+        message=message
+    )
 
 
 @app.route("/select/<mode>")
@@ -118,7 +124,7 @@ def settings():
 
     os.makedirs("backgrounds", exist_ok=True)
 
-    images = os.listdir(BACKGROUNDS_DIR)
+    images = os.listdir("app/static/backgrounds")
 
     return render_template(
         "settings.html",
@@ -294,9 +300,52 @@ def reset_statistics():
     return redirect(url_for("statistics"))
 
 
-@app.route("/backgrounds/<filename>")
-def backgrounds(filename):
-    return send_from_directory(
-        BACKGROUNDS_DIR,
-        filename
-    )
+@app.route("/feedback")
+def feedback():
+    return render_template("feedback.html")
+
+
+@app.route("/send_feedback", methods=["POST"])
+def send_feedback():
+
+    name = request.form["name"]
+    email = request.form.get("email", "")
+    message = request.form["message"]
+
+    body = f"""
+Новое сообщение из Math Game
+
+Имя: {name}
+
+E-mail: {email}
+
+Сообщение:
+{message}
+"""
+
+    msg = MIMEText(body, "plain", "utf-8")
+
+    msg["Subject"] = "Обратная связь Math Game"
+    msg["From"] = current_app.config["SMTP_LOGIN"]
+    msg["To"] = current_app.config["SUPPORT_EMAIL"]
+
+    try:
+        with smtplib.SMTP_SSL(
+            current_app.config["SMTP_SERVER"],
+            current_app.config["SMTP_PORT"]
+        ) as server:
+
+            server.login(
+                current_app.config["SMTP_LOGIN"],
+                current_app.config["SMTP_PASSWORD"]
+            )
+
+            server.send_message(msg)
+
+        session["message"] = "✅ Спасибо! Ваше сообщение успешно отправлено."
+
+    except Exception as e:
+        print(e)
+        session["message"] = "❌ Не удалось отправить сообщение. Попробуйте позже."
+
+    return redirect(url_for("index"))

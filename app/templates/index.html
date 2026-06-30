@@ -4,6 +4,14 @@
 
 <h1>Математическая игра</h1>
 
+{% if message %}
+    <div class="feedback correct">
+        {{ message }}
+    </div>
+
+    <br>
+{% endif %}
+
 <p>Выберите режим:</p>
 
 <a href="/select/add"><button>➕ Сложение</button></a>
@@ -36,6 +44,13 @@
 
 <a href="{{ url_for('profiles') }}">
     <button>👦 Профили</button>
+</a>
+
+<hr>
+<br>
+
+<a href="{{ url_for('feedback') }}">
+    <button>✉ Обратная связь</button>
 </a>
 
 {% endblock %}

@@ -96,3 +96,13 @@ h2{
 .space-theme label{
     color:white;
 }
+
+.feedback.correct {
+    color: green;
+    font-weight: bold;
+}
+
+.feedback.incorrect {
+    color: red;
+    font-weight: bold;
+}
