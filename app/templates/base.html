@@ -3,9 +3,8 @@
 <head>
     <meta charset="utf-8">
     <title>Math Game</title>
-
-    <link rel="stylesheet"
-          href="{{ url_for('static', filename='css/styles.css') }}">
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='favicon.ico') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
 </head>
 <body class="{% if settings.background_image == 'Space.png' %}space-theme{% endif %}"
     style="background-color: {{ settings.background_color }};
